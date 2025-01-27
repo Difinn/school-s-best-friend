@@ -34,7 +34,7 @@ def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id  
             
 
 
-bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
+bot = telebot.TeleBot(token = 'TOKEN')
 
 
 @bot.message_handler(commands = ['start'])
