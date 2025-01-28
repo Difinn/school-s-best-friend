@@ -10,8 +10,8 @@ def check_reg_people(userid, chatid): #message.from_user.id and message.chat.id 
         print(line, " ")
 
         while line != '':
-            tgpidor = (line.split(":"))[0]            # пока не конец файла
-            if tgpidor == str(userid):      # обрабатываем считанную строку
+            code = (line.split(":"))[0]            # пока не конец файла
+            if code == str(userid):      # обрабатываем считанную строку
                 return True
                 #flag = True
                 #break
@@ -24,8 +24,8 @@ def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id  
         print(line, " ")
 
         while line != '':
-            tgpidor = (line.split(":"))[0]            # пока не конец файла
-            if tgpidor == str(chatid):      # обрабатываем считанную строку
+            code = (line.split(":"))[0]            # пока не конец файла
+            if code == str(chatid):      # обрабатываем считанную строку
                 return True
                 #flag = True
                 #break
@@ -34,14 +34,14 @@ def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id  
             
 
 
-bot = telebot.TeleBot(token = 'TOKEN')
+bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
 
 
 @bot.message_handler(commands = ['start'])
 def send_welcome(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton(text="ДА! Помощь нужна."))
-    markup.add(types.KeyboardButton(text="Нет, иди нахуй!"))
+    markup.add(types.KeyboardButton(text="Нет!"))
     #print(message.chat.id, "Привет!", reply_markup = markup)
     # Получаем список групп, в которых находится бот
     #groups = bot.chat_ids
@@ -57,16 +57,16 @@ def send_welcome(message):
 def pupi_reg_people(message):
     print((message.text).split())
     if(check_reg_people(message.from_user.id, message.chat.id)):
-        bot.send_message(message.from_user.id, 'дебил?')
+        bot.send_message(message.from_user.id, 'Ты уже есть в базе')
     elif len((message.text).split())==4:
         print("Уяснил")
-        blya = (message.text).split() #я устал пиздец
+        name = (message.text).split() #я устал пиздец
         with open("base/inf_people.txt", 'a', encoding='utf-8') as file:
-            file.write(f"{message.from_user.id}:{blya[1]} {blya[2]} {blya[3]}\n")
+            file.write(f"{message.from_user.id}:{name[1]} {name[2]} {name[3]}\n")
         if not os.path.isdir(rf"base/inf_people/{message.from_user.id}"):
             os.mkdir(rf'base/inf_people/{message.from_user.id}')
 
-        bot.send_message(message.from_user.id, f'Привет, {blya[1]} {blya[2]} {blya[3]}\n')
+        bot.send_message(message.from_user.id, f'Привет, {name[1]} {name[2]} {name[3]}\n')
     else:
         bot.send_message(message.from_user.id, 'Напиши свое Ф.И.О')
 
@@ -93,7 +93,6 @@ def get_text_messages(message):
 
     print(f"USER: {message.from_user.id}")
     print(f"CHAT:{message.chat.id}")
-    print("BLYYYYYYYYYYYAAAAAAAAAAAAAAAAAAAAAAAAA")
     
     if check_reg_people(message.from_user.id, message.chat.id):
 
@@ -109,7 +108,6 @@ def get_text_messages(message):
                 markup.add(btn1, btn2, btn3)
                 bot.send_message(message.chat.id, 'Выбирай, путник!', reply_markup=markup) #ответ бота
             if message.text == "БИБЛИОТЕКА":
-                print("БИБЛИЯ")
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 markup.add(types.KeyboardButton(text="8"))
                 markup.add(types.KeyboardButton(text="9"))
