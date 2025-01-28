@@ -39,6 +39,12 @@ bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
 
 @bot.message_handler(commands = ['start'])
 def send_welcome(message):
+    conn = sqlite.connect('')
+    cur = conn.cursor()
+    cur.execute('CREATE TABLE IF NOT EXTSTS pupols (id int auto_increment primary key, name varchar(10), role vachar(10))')
+    conn.commit()
+    cur.close()
+    conn.close()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(types.KeyboardButton(text="ДА! Помощь нужна."))
     markup.add(types.KeyboardButton(text="Нет!"))
