@@ -57,7 +57,7 @@ def send_welcome(message):
 def pupi_reg_people(message):
     print((message.text).split())
     if(check_reg_people(message.from_user.id, message.chat.id)):
-        bot.send_message(message.from_user.id, 'Ты уже есть в базе')
+        bot.send_message(message.from_user.id, 'Вы уже есть в базе')
     elif len((message.text).split())==4:
         print("Уяснил")
         name = (message.text).split() #я устал пиздец
@@ -73,10 +73,9 @@ def pupi_reg_people(message):
 
 @bot.message_handler(commands = ["pup_reg_group"])
 def pupi_reg_group(message):
-    print("робит?")
     number = message.chat.id
     if(check_reg_group(message.from_user.id, message.chat.id)):
-        bot.send_message(message.chat.id, 'дебил?')
+        bot.send_message(message.chat.id, 'Уже в базе')
     else:
         with open(r"base/inf_groups.txt", 'a', encoding='utf-8') as file:
             file.write(f"{message.chat.id}:{message.text[15:]}")
@@ -113,6 +112,13 @@ def get_text_messages(message):
                 markup.add(types.KeyboardButton(text="9"))
                 markup.add(types.KeyboardButton(text="10"))
                 bot.send_message(message.chat.id, 'Из какого ты класса?', reply_markup=markup)
+            if message.text == "10":
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                markup.add(types.KeyboardButton(text="Алгебра"))
+                bot.send_message(message.chat.id, 'Выбери предмет!', reply_markup=markup)
+            if message.text == "Алгебра":
+                bot.send_document(message.chat.id, open(r'content/10/algebra/algebra-10-klass.pdf', 'rb'))
+
             if message.text == "УЧЕНИК":
                 bot.send_message(message.chat.id, 'Хорошо, школьник')
 
