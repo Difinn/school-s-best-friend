@@ -42,7 +42,7 @@ def send_welcome(message):
     # таблица
     conn = sqlite3.connect('users.sql')
     cur = conn.cursor()
-    cur.execute('CREATE TABLE IF NOT EXTSTS pupols (id int auto_increment primary key, name varchar(10), role vachar(10))')
+    cur.execute('CREATE TABLE IF NOT EXISTS pupols (id int auto_increment primary key, name varchar(10), role vachar(10))')
     conn.commit()
     cur.close()
     conn.close()
