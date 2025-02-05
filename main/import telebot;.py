@@ -2,6 +2,7 @@ import telebot;
 import random
 import os
 import sqlite3
+import time
 from telebot import types
 
 def check_reg_people(userid, chatid): #message.from_user.id and message.chat.id                  #есть id или нет
@@ -90,6 +91,9 @@ def pupi_reg_group(message):
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
 
+    seconds = time.time()
+    print(time.ctime(seconds))
+
     print(f"USER: {message.from_user.id}")
     print(f"CHAT:{message.chat.id}")
     
@@ -97,7 +101,12 @@ def get_text_messages(message):
 
         if check_reg_group(message.from_user.id, message.chat.id) or message.from_user.id==message.chat.id:
 
-            #bot.send_message(message.from_user.id, '👋 Поздороваться')
+            
+            #if check_reg_group(message.from_user.id, message.chat.id) and message.from_user.id != message.chat.id:
+                #with open(rf"base/inf_chats/{message.chat.id}/", 'w+', encoding='utf-8') as file:
+                    #file.write(f"{time.ctime(seconds)} {message.from_user.id}:{text.message}")
+
+            bot.send_message(message.from_user.id, '👋 Поздороваться')
 
             if message.text == "ДА! Помощь нужна.":
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True) #создание новых кнопок
@@ -121,9 +130,6 @@ def get_text_messages(message):
 
             if message.text == "УЧЕНИК":
                 bot.send_message(message.chat.id, 'Хорошо, школьник')
-
-
-        
         else:
             bot.send_message(message.chat.id, 'Зарегистрируйте /pup_reg_group')
 
