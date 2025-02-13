@@ -94,6 +94,7 @@ def pupi_reg_people(message):
             file.write(f"{message.from_user.id}:1:{name[1]} {name[2]} {name[3]}\n") #Запист ФИО
         if not os.path.isdir(rf"base/inf_people/{message.from_user.id}"):
             os.mkdir(rf'base/inf_people/{message.from_user.id}')
+        change_sm("0", message.from_user.id)
     else:
         bot.send_message(message.from_user.id, 'Напиши свое Ф.И.О') #Стартер
 
@@ -117,13 +118,15 @@ def pupi_reg_group(message): #регистрация по аналогии с л
 @bot.message_handler(content_types=['text'])
 def get_text_messages(message):
 
-    seconds = time.time()           #настоящее время в секундах
+    seconds = time.time()
+    #настоящее время в секундах           
     print(time.ctime(seconds))
 
     print(f"USER: {message.from_user.id}")
     print(f"CHAT:{message.chat.id}")
     
-    if check_reg_people(message.from_user.id, message.chat.id): #проверки на запись в базе
+    #проверки на запись в базе
+    if check_reg_people(message.from_user.id, message.chat.id): 
 
         if check_reg_group(message.from_user.id, message.chat.id) or message.from_user.id==message.chat.id:
 
@@ -132,46 +135,91 @@ def get_text_messages(message):
                 #with open(rf"base/inf_chats/{message.chat.id}/", 'w+', encoding='utf-8') as file:
                     #file.write(f"{time.ctime(seconds)} {message.from_user.id}:{text.message}")
 
-            # варианты
+            
 
             #if(get_sm(message.from_user.id)=="1"):                                                             Это был тест на sm
                 #bot.send_message(message.from_user.id, 'Вы зарегестироровались')
                 #change_sm("2", message.from_user.id)
-                
+            
+            # варианты    
 
-            if message.text == "ДА! Помощь нужна.":
+            if message.text == "ДА! Помощь нужна." or get_sm(message.from_user.id) == "0":
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True) #создание новых кнопок
                 btn1 = types.KeyboardButton('УЧЕНИК')
                 btn2 = types.KeyboardButton('УЧИТЕЛЬ')
                 btn3 = types.KeyboardButton('БИБЛИОТЕКА')
                 markup.add(btn1, btn2, btn3)
-                bot.send_message(message.chat.id, 'Выбирай, путник!', reply_markup=markup) #ответ бота
+                bot.send_message(message.chat.id, 'Выбирай, путник!', reply_markup=markup)
+            
             if message.text == "БИБЛИОТЕКА":
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                markup.add(types.KeyboardButton(text="8"))
+                #markup.add(types.KeyboardButton(text="8")) Мне в падлу искать учебники для 8 :3
                 markup.add(types.KeyboardButton(text="9"))
                 markup.add(types.KeyboardButton(text="10"))
+                markup.add(types.KeyboardButton(text="НАЗАД"))
                 bot.send_message(message.chat.id, 'Из какого ты класса?', reply_markup=markup)
-            if message.text == "10":
+            
+            #Библиотека за 10 класс
+            if message.text == "10" or get_sm(message.from_user.id)=="lib_10":
+                change_sm("lib_10", message.from_user.id)
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 markup.add(types.KeyboardButton(text="Алгебра"))
+                markup.add(types.KeyboardButton(text="История"))
+                markup.add(types.KeyboardButton(text="Английский"))
                 bot.send_message(message.chat.id, 'Выбери предмет!', reply_markup=markup)
-            if message.text == "Алгебра":
-                bot.send_document(message.chat.id, open(r'content/10/algebra/algebra-10-klass.pdf', 'rb'))
+            
+            
+            if get_sm(message.from_user.id) == "lib_10":
+                if message.text == "НАЗАД":
+                    change_sm("0", message.from_user.id)
+                if message.text == "Алгебра":
+                    bot.send_document(message.chat.id, open(r'content/10/algebra/10_algebra.pdf', 'rb'))
+                    change_sm("lib_10", message.from_user.id)
+                if message.text == "Английский":
+                    bot.send_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
+                    change_sm("lib_10", message.from_user.id)
+                if message.text == "История":
+                    bot.send_document(message.chat.id, open(r'content/10/history/10_history.pdf', 'rb'))
+                    change_sm("lib_10", message.from_user.id)
+            
+            #Библиотека за 9 класс
+            if message.text == "9" or get_sm(message.from_user.id)=="lib_9":
+                change_sm("lib_9", message.from_user.id)
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                markup.add(types.KeyboardButton(text="Алгебра"))
+                markup.add(types.KeyboardButton(text="История"))
+                markup.add(types.KeyboardButton(text="Английский"))
+                bot.send_message(message.chat.id, 'Выбери предмет!', reply_markup=markup)
+            if get_sm(message.from_user.id) == "lib_9":
+                if message.text == "НАЗАД":
+                    change_sm("0", message.from_user.id)
+                if message.text == "Алгебра":
+                    bot.send_document(message.chat.id, open(r'content/10/algebra/10_algebra.pdf', 'rb'))
+                    change_sm("lib_9", message.from_user.id)
+                if message.text == "Английский":
+                    bot.send_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
+                    change_sm("lib_9", message.from_user.id)
+                if message.text == "История":
+                    bot.send_document(message.chat.id, open(r'content/10/history/10_history.pdf', 'rb'))
+                    change_sm("lib_9", message.from_user.id)
 
+            #ученик
             if message.text == "УЧЕНИК":
-                bot.send_message(message.chat.id, 'Хорошо, школьник')
+                change_sm("pup_main", message.from_user.id)
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                markup.add(types.KeyboardButton(text="Д/З"))
+                markup.add(types.KeyboardButton(text="Выбор отсутсвующих"))
+                markup.add(types.KeyboardButton(text="Игры"))
+                bot.send_message(message.chat.id, 'Выбери опцию', reply_markup=markup)
+            if get_sm(message.from_user.id) == "pup_main":
+                if message.text == "НАЗАД":
+                    change_sm("0", message.from_user.id)
         else:
             bot.send_message(message.chat.id, 'Зарегистрируйте /pup_reg_group')
 
 
     else:
-        #if message.chat.type == 'private':
         bot.send_message(message.from_user.id, 'Поведуй мне о себе через команду /pup_reg_people')
-            #if(message.text[0:10].lower()=="меня зовут"):
-                #with open(r"base/inf_people.txt", 'a', encoding='utf-8') as file:
-                    #file.write(f"{message.from_user.id}:{(message.text)[11:]}\n")
-                #bot.send_message(message.from_user.id, f"Приветствую,{(message.text)[11:]}!")
 
 
         
