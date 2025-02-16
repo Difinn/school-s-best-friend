@@ -227,7 +227,7 @@ def get_text_messages(message):
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 markup.add(types.KeyboardButton(text="Д/З"))
                 markup.add(types.KeyboardButton(text="Список"))
-                markup.add(types.KeyboardButton(text="Выбор отсутсвующих"))
+                markup.add(types.KeyboardButton(text="Выбор отсутствующих"))
                 #markup.add(types.KeyboardButton(text="Игры"))
                 markup.add(types.KeyboardButton(text="НАЗАД"))
                 bot.send_message(message.chat.id, 'Выбери опцию', reply_markup=markup)
@@ -247,7 +247,8 @@ def get_text_messages(message):
 
                     change_sm("teach_main", message.from_user.id)
                 
-                if message.text == "Выбор отсутсвующих":
+                if message.text == "Выбор отсутствующих":
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     pup_list = sorted(get_members(message.chat.id))
                     mess = ""
                     i = 1
@@ -256,6 +257,8 @@ def get_text_messages(message):
                     bot.send_message(message.chat.id, "Выбери отсутствующего", reply_markup=markup)
 
                     change_sm("absent", message.from_user.id)
+                    bot.register_next_step_handler(message, set_absent1)
+                    #Дальше смотри функцию set_absent1 ниже
                 
                 if get_sm(message.from_user.id) == "absent":
                     userid = get_member_id_from_name(message.text)
@@ -269,7 +272,7 @@ def get_text_messages(message):
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 markup.add(types.KeyboardButton(text="Список"))
                 markup.add(types.KeyboardButton(text="График посещаемости ученика"))
-                markup.add(types.KeyboardButton(text="Выбор отсутсвующих"))
+                markup.add(types.KeyboardButton(text="Выбор отсутствующих"))
                 markup.add(types.KeyboardButton(text="НАЗАД"))
                 #markup.add(types.KeyboardButton(text="Игры"))
                 bot.send_message(message.chat.id, 'Выбери опцию', reply_markup=markup)
@@ -288,7 +291,8 @@ def get_text_messages(message):
 
                     change_sm("teach_main", message.from_user.id)
                 
-                if message.text == "Выбор отсутсвующих":
+                if message.text == "Выбор отсутствующих":
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     pup_list = sorted(get_members(message.chat.id))
                     mess = ""
                     i = 1
@@ -297,11 +301,8 @@ def get_text_messages(message):
                     bot.send_message(message.chat.id, "Выбери отсутствующего", reply_markup=markup)
 
                     change_sm("absent", message.from_user.id)
-            
-            if get_sm(message.from_user.id) == "absent":
-                userid = get_member_id_from_name(message.text)
-                #тут меняй на противоположное значение (по базе ученик присутствует(1))
-                change_sm("teach_main", message.from_user.id)
+                    bot.register_next_step_handler(message, set_absent2)
+                    #Дальше смотри функцию set_absent2 ниже
                 
         else:
             bot.send_message(message.chat.id, 'Зарегистрируйте /pup_reg_group')
@@ -309,6 +310,18 @@ def get_text_messages(message):
 
     else:
         bot.send_message(message.from_user.id, 'Поведуй мне о себе через команду /pup_reg_people')
+
+def set_absent1(message):
+    if get_sm(message.from_user.id) == "absent":
+        userid = get_member_id_from_name(message.text)
+        #тут меняй на противоположное значение (по базе ученик присутствует(1))
+        change_sm("pup_main", message.from_user.id)
+
+def set_absent2(message):
+    if get_sm(message.from_user.id) == "absent":
+        userid = get_member_id_from_name(message.text)
+        #тут меняй на противоположное значение (по базе ученик присутствует(1))
+        change_sm("teach_main", message.from_user.id)
 
 
         
