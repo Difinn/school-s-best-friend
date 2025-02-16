@@ -5,6 +5,7 @@ import sqlite3
 import time
 from telebot import types
 
+#есть id этого user в базе данных или нету(если есть, то true)
 def check_reg_people(userid, chatid): #message.from_user.id and message.chat.id                  #есть id или нет
     with open(r"base/inf_people.txt", 'r', encoding='utf-8') as file:
         line = file.readline()        # считываем первую строку
@@ -19,7 +20,8 @@ def check_reg_people(userid, chatid): #message.from_user.id and message.chat.id 
             line = file.readline()     # читаем новую строку
         return False
 
-def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id                  #есть id или нет
+#есть id этой группы в базе данных или нету(если есть, то true)
+def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id
     with open(r"base/inf_groups.txt", 'r', encoding='utf-8') as file:
         line = file.readline()        # считываем первую строку
         print(line, " ")
@@ -33,6 +35,7 @@ def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id  
             line = file.readline()     # читаем новую строку
         return False
 
+#получаем на каком этапе(state macine) находится user
 def get_sm(userid):
     with open(r"base/inf_people.txt", 'r', encoding='utf-8') as file:
         line = file.readline()        # считываем первую строку
@@ -44,7 +47,8 @@ def get_sm(userid):
             if code == str(userid):      # обрабатываем считанную строку
                 return sm
 
-def change_sm(new_sm ,userid): #Это не робит
+#смена state macine
+def change_sm(new_sm ,userid):
     linelist = []
     with open(r"base/inf_people.txt", 'r+', encoding='utf-8') as file:
         line = file.readline()        # считываем первую строку
@@ -60,8 +64,22 @@ def change_sm(new_sm ,userid): #Это не робит
         
         with open("main.py", "w") as file:
             file.write(new_data)
-            
 
+#возвращает группы списком
+def get_groups(userid):
+    pass
+
+#возвращает участников группы по id в списке
+def get_members(chatid):
+    pass
+
+#из id ищет имя участника
+def get_member_name_from_id(userid):
+    pass
+
+#из имени ищет id
+def get_member_id_from_name(userid):
+    pass
 
 bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
 
@@ -197,7 +215,7 @@ def get_text_messages(message):
                     bot.send_document(message.chat.id, open(r'content/10/algebra/10_algebra.pdf', 'rb'))
                     change_sm("lib_9", message.from_user.id)
                 if message.text == "Английский":
-                    bot.send_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
+                    bot.szend_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
                     change_sm("lib_9", message.from_user.id)
                 if message.text == "История":
                     bot.send_document(message.chat.id, open(r'content/10/history/10_history.pdf', 'rb'))
@@ -208,12 +226,83 @@ def get_text_messages(message):
                 change_sm("pup_main", message.from_user.id)
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                 markup.add(types.KeyboardButton(text="Д/З"))
+                markup.add(types.KeyboardButton(text="Список"))
                 markup.add(types.KeyboardButton(text="Выбор отсутсвующих"))
-                markup.add(types.KeyboardButton(text="Игры"))
+                #markup.add(types.KeyboardButton(text="Игры"))
+                markup.add(types.KeyboardButton(text="НАЗАД"))
                 bot.send_message(message.chat.id, 'Выбери опцию', reply_markup=markup)
+            
             if get_sm(message.from_user.id) == "pup_main":
                 if message.text == "НАЗАД":
                     change_sm("0", message.from_user.id)
+                
+                if message.text == "Список":
+                    pup_list = sorted(get_members(message.chat.id))
+                    mess = ""
+                    i = 1
+                    for c in list:
+                        mess += f"{str(i)}. {get_member_name_from_id(c)}\n"
+                        i += 1
+                    bot.send_message(message.chat.id, mess)
+
+                    change_sm("teach_main", message.from_user.id)
+                
+                if message.text == "Выбор отсутсвующих":
+                    pup_list = sorted(get_members(message.chat.id))
+                    mess = ""
+                    i = 1
+                    for c in list:
+                        markup.add(types.KeyboardButton(get_member_name_from_id(c)))
+                    bot.send_message(message.chat.id, "Выбери отсутствующего", reply_markup=markup)
+
+                    change_sm("absent", message.from_user.id)
+                
+                if get_sm(message.from_user.id) == "absent":
+                    userid = get_member_id_from_name(message.text)
+                    #тут меняй на противоположное значение (по базе ученик присутствует(1))
+                    change_sm("pup_main", message.from_user.id)
+            
+            #учитель
+            if message.text == "УЧИТЕЛЬ":
+
+                change_sm("teach_main", message.from_user.id)
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                markup.add(types.KeyboardButton(text="Список"))
+                markup.add(types.KeyboardButton(text="График посещаемости ученика"))
+                markup.add(types.KeyboardButton(text="Выбор отсутсвующих"))
+                markup.add(types.KeyboardButton(text="НАЗАД"))
+                #markup.add(types.KeyboardButton(text="Игры"))
+                bot.send_message(message.chat.id, 'Выбери опцию', reply_markup=markup)
+            if get_sm(message.from_user.id) == "teach_main":
+                if message.text == "НАЗАД":
+                    change_sm("0", message.from_user.id)
+                
+                if message.text == "Список":
+                    pup_list = sorted(get_members(message.chat.id))
+                    mess = ""
+                    i = 1
+                    for c in list:
+                        mess += f"{str(i)}. {get_member_name_from_id(c)}\n"
+                        i += 1
+                    bot.send_message(message.chat.id, mess)
+
+                    change_sm("teach_main", message.from_user.id)
+                
+                if message.text == "Выбор отсутсвующих":
+                    pup_list = sorted(get_members(message.chat.id))
+                    mess = ""
+                    i = 1
+                    for c in list:
+                        markup.add(types.KeyboardButton(get_member_name_from_id(c)))
+                    bot.send_message(message.chat.id, "Выбери отсутствующего", reply_markup=markup)
+
+                    change_sm("absent", message.from_user.id)
+            
+            if get_sm(message.from_user.id) == "absent":
+                userid = get_member_id_from_name(message.text)
+                #тут меняй на противоположное значение (по базе ученик присутствует(1))
+                change_sm("teach_main", message.from_user.id)
+                
         else:
             bot.send_message(message.chat.id, 'Зарегистрируйте /pup_reg_group')
 
