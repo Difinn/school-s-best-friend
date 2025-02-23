@@ -148,16 +148,27 @@ def get_text_messages(message):
 
         if check_reg_group(message.from_user.id, message.chat.id) or message.from_user.id==message.chat.id:
 
-            
-            #if check_reg_group(message.from_user.id, message.chat.id) and message.from_user.id != message.chat.id:
-                #with open(rf"base/inf_chats/{message.chat.id}/", 'w+', encoding='utf-8') as file:
-                    #file.write(f"{time.ctime(seconds)} {message.from_user.id}:{text.message}")
+            #бекапу и дз
+            if check_reg_group(message.from_user.id, message.chat.id) and message.from_user.id != message.chat.id:
+                if ((message.text).split("#"))[0] == "ДЗ":
+                    pass
+
+                else:
+                    with open(rf"base/inf_chats/{message.chat.id}/", 'w+', encoding='utf-8') as file:
+                        file.write(f"{time.ctime(seconds)} {message.from_user.id}:{message.text}")
 
             
 
             #if(get_sm(message.from_user.id)=="1"):                                                             Это был тест на sm
                 #bot.send_message(message.from_user.id, 'Вы зарегестироровались')
                 #change_sm("2", message.from_user.id)
+            
+            #if msg.text == "ЭБ, 1654356":  # Условые пересылки сообщения
+                #bot.forward_message(
+                #chat_id=1093110311,  # chat_id чата в которое необходимо переслать сообщение
+                #from_chat_id=msg.chat.id,  # chat_id из которого необходимо переслать сообщение
+                #message_id=msg.message_id  # message_id которое необходимо переслать
+                #)
             
             # варианты    
 
@@ -236,6 +247,17 @@ def get_text_messages(message):
                 if message.text == "НАЗАД":
                     change_sm("0", message.from_user.id)
                 
+                #можешь сам решить как сделаешь. Но я предлагаю делать запись по типу #ДЗ#мат
+                #мат улетает в базу и ты записываешь это с в таблу с id чата  из которого необходимо переслать сообщение и #message_id которое необходимо переслать
+                if message.text == "Д/З":
+                    #if msg.text == "ЭБ, 1654356":  # Условые пересылки сообщения
+                        #bot.forward_message(
+                        #chat_id=1093110311,  # chat_id чата в которое необходимо переслать сообщение
+                        #from_chat_id=msg.chat.id,  # chat_id из которого необходимо переслать сообщение
+                        #message_id=msg.message_id  # message_id которое необходимо переслать
+                        #)
+                        pass
+                
                 if message.text == "Список":
                     pup_list = sorted(get_members(message.chat.id))
                     mess = ""
@@ -291,6 +313,18 @@ def get_text_messages(message):
 
                     change_sm("teach_main", message.from_user.id)
                 
+                if message.text == "График посещаемости ученика":
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    pup_list = sorted(get_members(message.chat.id))
+                    mess = ""
+                    i = 1
+                    for c in list:
+                        markup.add(types.KeyboardButton(get_member_name_from_id(c)))
+                    bot.send_message(message.chat.id, "Выбери ученика для проверки", reply_markup=markup)
+
+                    change_sm("graf", message.from_user.id)
+                    bot.register_next_step_handler(message, send_graf)
+                
                 if message.text == "Выбор отсутствующих":
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     pup_list = sorted(get_members(message.chat.id))
@@ -321,6 +355,12 @@ def set_absent2(message):
     if get_sm(message.from_user.id) == "absent":
         userid = get_member_id_from_name(message.text)
         #тут меняй на противоположное значение (по базе ученик присутствует(1))
+        change_sm("teach_main", message.from_user.id)
+
+def send_graf(message):
+    if get_sm(message.from_user.id) == "graf":
+    #дальше сам делаешь
+        pass
         change_sm("teach_main", message.from_user.id)
 
 
