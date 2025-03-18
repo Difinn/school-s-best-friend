@@ -157,7 +157,7 @@ def get_text_messages(message):
 
         if check_reg_group(message.from_user.id, message.chat.id) or message.from_user.id==message.chat.id:
 
-            #бекапу и дз
+            #бекап и дз
             if check_reg_group(message.from_user.id, message.chat.id) and message.from_user.id != message.chat.id:
                 if ((message.text).split("#"))[0] == "ДЗ":
                     pass
@@ -278,28 +278,31 @@ def get_text_messages(message):
                         i += 1
                     bot.send_message(message.chat.id, mess)
                 
-                elif message.text == "Выбор отсутствующих":
-                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                    pup_list = sorted(get_members(message.chat.id))
-                    mess = ""
-                    i = 1
-                    for c in pup_list:
-                        markup.add(types.KeyboardButton(get_member_name_from_id(c)))
-                    bot.send_message(message.chat.id, "Выбери отсутствующего", reply_markup=markup)
-                    change_sm(f"absent:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
-                    bot.register_next_step_handler(message, set_absent1)
+                #elif message.text == "Выбор отсутствующих":
+                    #markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    #pup_list = sorted(get_members(message.chat.id))
+                    #mess = ""
+                    #i = 1
+                    #for c in pup_list:
+                        #markup.add(types.KeyboardButton(get_member_name_from_id(c)))
+                    #bot.send_message(message.chat.id, "Выбери отсутствующего", reply_markup=markup)
+                    #change_sm(f"absent:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
+                    #bot.register_next_step_handler(message, set_absent1)
                     #Дальше смотри функцию set_absent1 ниже
+
+                    #Но функцию забраковали :< Хотя можно сделать старосту
                 
-                elif (get_sm(message.from_user.id).split(':'))[0] == "absent":
-                    userid = get_member_id_from_name(message.text)
+                #elif (get_sm(message.from_user.id).split(':'))[0] == "absent":
+                    #userid = get_member_id_from_name(message.text)
                     #тут меняй на противоположное значение (по базе ученик присутствует(1))
-                    change_sm("pup_main", message.from_user.id)
+                    #change_sm("pup_main", message.from_user.id)
                 else:
                     change_sm("pup_main", message.from_user.id)
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     markup.add(types.KeyboardButton(text="Д/З"))
                     markup.add(types.KeyboardButton(text="Список"))
-                    markup.add(types.KeyboardButton(text="Выбор отсутствующих"))
+                    markup.add(types.KeyboardButton(text="Мероприятия"))
+                    #markup.add(types.KeyboardButton(text="Выбор отсутствующих"))
                     #markup.add(types.KeyboardButton(text="Игры"))
                     markup.add(types.KeyboardButton(text="НАЗАД"))
                     bot.send_message(message.chat.id, 'Выбери опцию', reply_markup=markup)
@@ -318,6 +321,7 @@ def get_text_messages(message):
                 if message.text == "НАЗАД":
                     change_sm("0:0", message.from_user.id)
                 
+                #Это функция сделана и ее трогать не надо!!!
                 elif message.text == "Список":
                     pup_list = sorted(get_members(message.chat.id))
                     mess = ""
@@ -327,11 +331,11 @@ def get_text_messages(message):
                         i += 1
                     bot.send_message(message.chat.id, mess)
                 
+                #Это График и его НАДО СДЕЛАТЬ
                 elif message.text == "График посещаемости ученика":
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     pup_list = sorted(get_members(message.chat.id))
                     mess = ""
-                    i = 1
                     for c in pup_list:
                         markup.add(types.KeyboardButton(get_member_name_from_id(c)))
                     bot.send_message(message.chat.id, "Выбери ученика для проверки", reply_markup=markup)
@@ -339,6 +343,18 @@ def get_text_messages(message):
                     change_sm(f"graf:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
                     bot.register_next_step_handler(message, send_graf)
                 
+                elif message.text == "Мероприятия":
+                    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                    markup.add(types.KeyboardButton(text="Создать"))
+                    markup.add(types.KeyboardButton(text="Посмотреть"))
+                    markup.add(types.KeyboardButton(text="Руководство"))
+                    bot.send_message(message.chat.id, 'Выбери опцию', reply_markup=markup)
+
+                    change_sm(f"party:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
+
+                    bot.register_next_step_handler(message, party)
+                
+
                 elif message.text == "Выбор отсутствующих":
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     pup_list = sorted(get_members(message.chat.id))
@@ -355,6 +371,7 @@ def get_text_messages(message):
                 else:
                     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
                     markup.add(types.KeyboardButton(text="Список"))
+                    markup.add(types.KeyboardButton(text="Мероприятия"))
                     markup.add(types.KeyboardButton(text="График посещаемости ученика"))
                     markup.add(types.KeyboardButton(text="Выбор отсутствующих"))
                     markup.add(types.KeyboardButton(text="НАЗАД"))
@@ -370,34 +387,46 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, 'Поведуй мне о себе через команду /pup_reg_people')
 
 def set_absent1(message):
-    if get_sm(message.from_user.id) == "absent":
+    if (get_sm(message.from_user.id).split(":"))[0] == "absent":
         userid = get_member_id_from_name(message.text)
         #тут меняй на противоположное значение (по базе ученик присутствует(1))
         change_sm("pup_main", message.from_user.id)
 
 def set_absent2(message):
-    if get_sm(message.from_user.id) == "absent":
+    if (get_sm(message.from_user.id).split(":"))[0] == "absent":
         userid = get_member_id_from_name(message.text)
+
+        bot.send_message(userid, 'Вас обозначали, как отсутсвующего.')
+
         #тут меняй на противоположное значение (по базе ученик присутствует(1))
+
         change_sm(f"teach_main:{(get_sm(message.from_user.id).split(':'))[0]}", message.from_user.id)
 
 def send_graf(message):
-    if get_sm(message.from_user.id) == "graf":
+    if (get_sm(message.from_user.id).split(":"))[0] == "graf":
     #дальше сам делаешь
         pass
-        change_sm(f"teach_main:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
+    change_sm(f"teach_main:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
 
 #это смотреть надо, как работает (это для ученика)
 def sm_group1(message):
     change_sm(f"pup_main:{get_groups_id_from_name(message.text)}", message.from_user.id)
-    bot.send_message(message.chat.id, "Понял принял")
+    bot.send_message(message.chat.id, "Принято")
 
 #это смотреть надо, как работает (это для учителя)
 def sm_group2(message):
     change_sm(f"teach_main:{get_groups_id_from_name(message.text)}", message.from_user.id)
-    bot.send_message(message.chat.id, "Понял принял")
+    bot.send_message(message.chat.id, "Принято")
+
+def party(message):
+    if message.text == "Создать":
+        pass
+    elif message.text == "Посмотреть":
+        pass
+    elif message.text == "Руководство":
+        pass
 
 
-        
+
 
 bot.polling(none_stop=True, interval=0)
