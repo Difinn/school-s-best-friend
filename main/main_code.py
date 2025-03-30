@@ -3,6 +3,7 @@ import random
 import os
 import sqlite3
 import time
+import schedule
 from telebot import types
 
 #есть id этого user в базе данных или нету(если есть, то true)
@@ -92,11 +93,25 @@ def get_member_id_from_name(userid):
 
 bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
 
+#РАССЫЛКА МЕМОВ НАЧАЛО
+def job():
+    #тут для subscribed_users
+    for user_id in subscribed_users:
+        bot.send_message(chat_id=user_id, text="Это автоматическое сообщение.")
+
+schedule.every().day.at("10:00").do(job)
+
+while True:
+    
+    schedule.run_pending()
+    time.sleep(1)
+#РАССЫЛКА МЕМОВ ФИНАЛ
+
 
 @bot.message_handler(commands = ['start'])
 def send_welcome(message):                                    #стартовая команда
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton(text="ДА! Помощь нужна."))
+    markup.add(types.KeyboardButton(text="Да! Помощь нужна."))
     markup.add(types.KeyboardButton(text="Нет!"))
     #print(message.chat.id, "Привет!", reply_markup = markup)
     # Получаем список групп, в которых находится бот
@@ -106,22 +121,22 @@ def send_welcome(message):                                    #стартова�
     #with open("chats\base\inf_chats.txt", "w") as file:
         #file.write(str(groups))
 
-    bot.send_message(message.chat.id, f"Привет!", reply_markup = markup)
+    bot.send_message(message.chat.id, f"Привет! Тебе нужна помощь?", reply_markup = markup)
 
 
 @bot.message_handler(commands = ["pup_reg_people"]) #регистрация людей
 def pupi_reg_people(message):
     print((message.text).split())
     if(check_reg_people(message.from_user.id, message.chat.id)): #если есть в базе
-        bot.send_message(message.from_user.id, 'Вы уже есть в базе')
+        bot.send_message(message.from_user.id, 'Вы уже есть в базе в данных')
     elif len((message.text).split())==4: #если есть 4 слова(команда + ФИО)
-        print("Уяснил")
+        print("Запомнил")
         name = (message.text).split() #я устал пиздец
         with open("base/inf_people.txt", 'a', encoding='utf-8') as file:
             file.write(f"{message.from_user.id}:1:{name[1]} {name[2]} {name[3]}\n") #Запист ФИО
         if not os.path.isdir(rf"base/inf_people/{message.from_user.id}"):
             os.mkdir(rf'base/inf_people/{message.from_user.id}')
-        change_sm("0", message.from_user.id)
+        change_sm("0:0", message.from_user.id)
     else:
         bot.send_message(message.from_user.id, 'Напиши свое Ф.И.О') #Стартер
 
@@ -130,7 +145,7 @@ def pupi_reg_people(message):
 def pupi_reg_group(message): #регистрация по аналогии с людьми
     number = message.chat.id
     if(check_reg_group(message.from_user.id, message.chat.id)):
-        bot.send_message(message.chat.id, 'Уже в базе')
+        bot.send_message(message.chat.id, 'Уже есть в базе данных')
     else:
         with open(r"base/inf_groups.txt", 'a', encoding='utf-8') as file:
             file.write(f"{message.chat.id}:{message.text[15:]}")
@@ -181,7 +196,7 @@ def get_text_messages(message):
             
             # варианты    
 
-            if message.text == "ДА! Помощь нужна." or (get_sm(message.from_user.id).split(":"))[0] == "0":
+            if message.text == "Да! Помощь нужна." or (get_sm(message.from_user.id).split(":"))[0] == "0":
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True) #создание новых кнопок
                 btn1 = types.KeyboardButton('УЧЕНИК')
                 btn2 = types.KeyboardButton('УЧИТЕЛЬ')
@@ -390,7 +405,7 @@ def set_absent1(message):
     if (get_sm(message.from_user.id).split(":"))[0] == "absent":
         userid = get_member_id_from_name(message.text)
         #тут меняй на противоположное значение (по базе ученик присутствует(1))
-        change_sm("pup_main", message.from_user.id)
+        change_sm(f"pup_main:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
 
 def set_absent2(message):
     if (get_sm(message.from_user.id).split(":"))[0] == "absent":
@@ -416,15 +431,29 @@ def sm_group1(message):
 #это смотреть надо, как работает (это для учителя)
 def sm_group2(message):
     change_sm(f"teach_main:{get_groups_id_from_name(message.text)}", message.from_user.id)
-    bot.send_message(message.chat.id, "Принято")
+    bot.send_message(message.from_user.id, "Дайте название данному событию.")
 
 def party(message):
     if message.text == "Создать":
-        pass
+        bot.send_message(message.chat.id, "Принято")
+        bot.register_next_step_handler(message, party_name)
     elif message.text == "Посмотреть":
         pass
     elif message.text == "Руководство":
         pass
+
+def party_name(message):
+    #Тут сделай запись в табличку, наверное
+    bot.register_next_step_handler(message, party_description)
+
+def party_description(message):
+    #Тут сделай запись в табличку, наверное
+    bot.send_message(message.chat.id, "Принято. Введите описание события.")
+    bot.register_next_step_handler(message, party_time)
+
+def party_time(message):
+    #Тут сделай запись в табличку, наверное
+    bot.send_message(message.chat.id, "Мероприятие создано")
 
 
 
