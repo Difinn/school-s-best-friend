@@ -12,6 +12,7 @@ c.execute("""CREATE TABLE articles (
 )""")
 
 #otchim - это классрук (или декан)
+#бляяя нужно по row id как-то использовать для получения группы из имени
 
 db.commit()
 db.close()
