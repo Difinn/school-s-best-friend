@@ -7,11 +7,11 @@ c.execute("""CREATE TABLE articles (
     id text,
     name text,
     participants text,
-    dean text,
+    otchim text,
     events text
 )""")
 
-#dean - это классрук (или декан)
+#otchim - это классрук (или декан)
 
 db.commit()
 db.close()
