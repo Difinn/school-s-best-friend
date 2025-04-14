@@ -68,28 +68,88 @@ def change_sm(new_sm ,userid):
 
 #возвращает группы списком в которм есть пользователь
 def get_groups(userid):
-    pass
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == userid:
+            result = c[3].split(",")
+    
+    db.close()
+    return result
 
 #возвращает название группы из id
 def get_groups_name_from_id(userid):
-    pass
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == userid:
+            result = c[1]
+    
+    db.close()
+    return result
 
 #возвращает id группы из имени
 def get_groups_id_from_name(userid):
-    pass
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[1] == userid:
+            result = c[0]
+    
+    db.close()
+    return result
 
 
 #возвращает участников группы по id в списке
 def get_members(chatid):
-    pass
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == chatid:
+            result = c[2].split(",")
+    
+    db.close()
+    return result
 
 #из id ищет имя участника
 def get_member_name_from_id(userid):
-    pass
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == userid:
+            result = c[1]
+    
+    db.close()
+    return result
 
 #из имени ищет id
 def get_member_id_from_name(userid):
-    pass
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == userid:
+            result = c[1]
+    
+    db.close()
+    return result
 
 bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
 
