@@ -8,68 +8,63 @@ from telebot import types
 
 #есть id этого user в базе данных или нету(если есть, то true)
 def check_reg_people(userid, chatid): #message.from_user.id and message.chat.id                  #есть id или нет
-    with open(r"base/inf_people.txt", 'r', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
-        while line != '':
-            code = (line.split(":"))[0]            # пока не конец файла
-            if code == str(userid):      # обрабатываем считанную строку
-                return True
-                #flag = True
-                #break
-            line = file.readline()     # читаем новую строку
-        return False
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == userid:
+            db.close()
+            return True
+    
+    db.close()
+    return False
 
 #есть id этой группы в базе данных или нету(если есть, то true)
 def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id
-    with open(r"base/inf_groups.txt", 'r', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
-        while line != '':
-            code = (line.split(":"))[0]            # пока не конец файла
-            if code == str(chatid):      # обрабатываем считанную строку
-                return True
-                #flag = True
-                #break
-            line = file.readline()     # читаем новую строку
-        return False
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == userid:
+            db.close()
+            return True
+    
+    db.close()
+    return False
 
 #получаем на каком этапе(state macine) находится user
 def get_sm(userid):
-    with open(r"base/inf_people.txt", 'r', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
-        while line != '':
-            code = (line.split(":"))[0]  # пока не конец файла
-            sm = (line.split(":"))[1]            
-            if code == str(userid):      # обрабатываем считанную строку
-                return sm
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == userid:
+            result = c[2]
+    
+    db.close()
+    return result
 
 #смена state macine
 def change_sm(new_sm ,userid):
-    linelist = []
-    with open(r"base/inf_people.txt", 'r+', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
 
-        while line != '':
-            code = (line.split(":"))            # пока не конец файла
-            if code == str(userid):      # обрабатываем считанную строку
-                code[1] = new_sm
-                linelist.append(":".join(code))
-            else:
-                linelist.append(line)
-        
-        with open("main.py", "w") as file:
-            file.write(new_data)
+    c.execute("UPDATE articles SET sm = new_sm WHERE id = userid")
 
 #возвращает группы списком в которм есть пользователь
 def get_groups(userid):
     db = sqlite3.connect("userstable.db")
     c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
     all = c.fetchall()
     result = "0"
@@ -84,6 +79,7 @@ def get_groups(userid):
 def get_groups_name_from_id(userid):
     db = sqlite3.connect("groupstable.db")
     c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
     all = c.fetchall()
     result = "0"
@@ -98,6 +94,7 @@ def get_groups_name_from_id(userid):
 def get_groups_id_from_name(userid):
     db = sqlite3.connect("groupstable.db")
     c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
     all = c.fetchall()
     result = "0"
@@ -113,6 +110,7 @@ def get_groups_id_from_name(userid):
 def get_members(chatid):
     db = sqlite3.connect("groupstable.db")
     c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
     all = c.fetchall()
     result = "0"
@@ -127,6 +125,7 @@ def get_members(chatid):
 def get_member_name_from_id(userid):
     db = sqlite3.connect("userstable.db")
     c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
     all = c.fetchall()
     result = "0"
@@ -141,6 +140,7 @@ def get_member_name_from_id(userid):
 def get_member_id_from_name(userid):
     db = sqlite3.connect("userstable.db")
     c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
     all = c.fetchall()
     result = "0"
