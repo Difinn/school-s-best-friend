@@ -4,7 +4,6 @@ db = sqlite3.connect("userstable.db")
 c = db.cursor()
 
 c.execute("""CREATE TABLE articles (
-    id text,
     name text,
     description text,
     time text,
@@ -12,6 +11,7 @@ c.execute("""CREATE TABLE articles (
 )""")
 
 #id это по номеру (len + 1), хотя есть rowid, но это нюансы
+#Я выбираю rowid
 
 db.commit()
 db.close()
