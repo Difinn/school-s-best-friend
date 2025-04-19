@@ -1,5 +1,5 @@
 import sqlite3
-db = sqlite3.connect("userstable.db")
+db = sqlite3.connect("eventstable.db")
 
 c = db.cursor()
 
