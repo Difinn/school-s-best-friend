@@ -495,7 +495,7 @@ def sm_group2(message):
 
 def party(message):
     if message.text == "Создать":
-        bot.send_message(message.chat.id, "Принято")
+        bot.send_message(message.chat.id, "Принято. Введите имя события.")
         bot.register_next_step_handler(message, party_name)
     elif message.text == "Посмотреть":
         pass
@@ -503,17 +503,40 @@ def party(message):
         pass
 
 def party_name(message):
-    #Тут сделай запись в табличку, наверное
-    bot.register_next_step_handler(message, party_description)
+    name = message.text
 
-def party_description(message):
-    #Тут сделай запись в табличку, наверное
     bot.send_message(message.chat.id, "Принято. Введите описание события.")
-    bot.register_next_step_handler(message, party_time)
-
-def party_time(message):
     #Тут сделай запись в табличку, наверное
-    bot.send_message(message.chat.id, "Мероприятие создано")
+    bot.register_next_step_handler(message, party_description, name)
+
+def party_description(message, name):
+    desc = message.text
+
+    #Тут сделай запись в табличку, наверное
+    bot.send_message(message.chat.id, "Принято. Введите время события.")
+    bot.register_next_step_handler(message, party_time, name, desc)
+
+def party_time(message, name, desc):
+    time = message.text
+
+    #Тут сделай запись в табличку, наверное
+    bot.send_message(message.chat.id, "Принято. Когда напомнить о событии?")
+    bot.register_next_step_handler(message, m_party_time, name, desc, time)
+def m_party_time(message, name, desc, time):
+    m_time = message.text
+
+    db = sqlite3.connect("eventstable.db")
+    c = db.cursor()
+
+    c.execute("INSERT INTO articles VALUES (name, desc, time, m_time)")
+    c.execute("SELECT rowid FROM articles")
+    a = len(c.fetchall())
+    db.commit()
+    db.close()
+
+
+    bot.send_message(message.chat.id, "Событие создано")
+
 
 
 
