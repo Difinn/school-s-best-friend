@@ -525,14 +525,31 @@ def party_time(message, name, desc):
 def m_party_time(message, name, desc, time):
     m_time = message.text
 
+    
     db = sqlite3.connect("eventstable.db")
+    db_g = sqlite3.connect("groupstable.db")
     c = db.cursor()
+    c_g = db.cursor()
 
     c.execute("INSERT INTO articles VALUES (name, desc, time, m_time)")
     c.execute("SELECT rowid FROM articles")
+
     a = len(c.fetchall())
+    idishnik = (get_sm(message.from_user.id).split(":"))[1]
+
+    c_g.execute("SELECT events, participants FROM articles WHERE id = idishnik")
+    new_event = (c_g.fetchall())[0][0] + ","+ str(a)
+
+    for c in (c_g.fetchall())[0][1]:
+        bot.send_message(message.from_user.c, f"Новое событие '{name}':\n{desc}")
+        #этот моментик проверить надо
+
+    c_g.execute("UPDATE articles SET event = new_event WHERE id = idishnik")
+
     db.commit()
     db.close()
+
+    
 
 
     bot.send_message(message.chat.id, "Событие создано")
