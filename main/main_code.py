@@ -541,7 +541,7 @@ def m_party_time(message, name, desc, time):
     new_event = (c_g.fetchall())[0][0] + ","+ str(a)
 
     for c in (c_g.fetchall())[0][1]:
-        bot.send_message(message.from_user.c, f"Новое событие '{name}':\n{desc}")
+        bot.send_message(c, f"Новое событие '{name}':\n{desc}")
         #этот моментик проверить надо
 
     c_g.execute("UPDATE articles SET event = new_event WHERE id = idishnik")
