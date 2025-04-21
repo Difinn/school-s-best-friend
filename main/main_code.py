@@ -151,6 +151,17 @@ def get_member_id_from_name(userid):
     db.close()
     return result
 
+def get_event_inf(idishnik):
+    db = sqlite3.connect("eventstable.db")
+    c = db.cursor()
+    idishnik = int(idishnik)
+    c.execute("SELECT rowid, * FROM articles where rowid = idishnik")
+
+    all = c.fetchall()
+    
+    db.close()
+    return all[0]
+
 bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
 
 #РАССЫЛКА МЕМОВ НАЧАЛО
@@ -498,7 +509,26 @@ def party(message):
         bot.send_message(message.chat.id, "Принято. Введите имя события.")
         bot.register_next_step_handler(message, party_name)
     elif message.text == "Посмотреть":
-        pass
+        db = sqlite3.connect("groupstable.db")
+
+
+        c = db.cursor()
+
+        group = (get_sm(message.from_user.id).split(":"))[0]
+        c.execute("SELECT events FROM articles WHERE id = group")
+        events = c.fetchall()
+        
+        for hah in events:
+            markup.add(types.KeyboardButton((get_event_inf(hah))[1]))
+
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        bot.send_message(message.chat.id, 'Выберите событие', reply_markup=markup)
+
+        db.commit()
+        db.close()
+
+        bot.register_next_step_handler(message, party_inf, events)
+        
     elif message.text == "Руководство":
         pass
 
@@ -553,6 +583,12 @@ def m_party_time(message, name, desc, time):
 
 
     bot.send_message(message.chat.id, "Событие создано")
+
+def party_inf(message, events):
+    for c in events:
+        if message == c[2]:
+            bot.send_message(c, f"Новое событие '{c[2]}':\n{c[3]}")
+
 
 
 
