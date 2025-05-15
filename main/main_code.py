@@ -607,7 +607,7 @@ def party(message):
         c = db.cursor()
 
         group = (get_sm(message.from_user.id).split(":"))[0]
-        c.execute("SELECT events FROM articles WHERE id = group")
+        c.execute("SELECT events FROM articles WHERE id = ?", (group))
         events = c.fetchall()
         
         for hah in events:
