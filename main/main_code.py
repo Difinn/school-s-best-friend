@@ -65,15 +65,11 @@ def change_sm(new_sm ,userid):
 def get_groups(userid):
     db = sqlite3.connect("userstable.db")
     c = db.cursor()
-    c.execute("SELECT * FROM articles")
+    c.execute("SELECT groups FROM articles WHERE id = ?", (str(userid)))
 
     all = c.fetchall()
-    result = "0"
-    for c in all:
-        if c[0] == str(userid):
-            result = c[3].split(",")
-    
-    db.close()
+    result = (all[0]).split(",")
+
     return result
 
 #возвращает название группы из id
