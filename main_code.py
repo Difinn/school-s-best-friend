@@ -18,7 +18,7 @@ def check_reg_people(userid, chatid): #message.from_user.id and message.chat.id 
         if c[0] == str(userid):
             db.close()
             return True
-    
+    db.commit()
     db.close()
     return False
 
@@ -34,7 +34,7 @@ def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id
         if c[0] == str(userid):
             db.close()
             return True
-
+    db.commit()
     db.close()
     return False
 
@@ -49,7 +49,7 @@ def get_sm(userid):
     for c in all:
         if c[0] == str(userid):
             result = c[2]
-    
+    db.commit()
     db.close()
     return result
 
@@ -71,7 +71,8 @@ def get_groups(userid):
 
     all = c.fetchall()
     result = (all[0][0]).split(",")
-
+    db.commit()
+    db.close()
     return result
 
 #возвращает название группы из id
@@ -85,7 +86,8 @@ def get_groups_name_from_id(userid):
     for c in all:
         if c[0] == str(userid):
             result = c[1]
-    
+
+    db.commit()
     db.close()
     return result
 
@@ -100,7 +102,8 @@ def get_groups_id_from_name(userid):
     for c in all:
         if c[1] == str(userid):
             result = c[0]
-    
+
+    db.commit()
     db.close()
     return result
 
@@ -116,7 +119,8 @@ def get_members(chatid):
     for c in all:
         if c[0] == str(chatid):
             result = c[2].split(",")
-    
+
+    db.commit()
     db.close()
     return result
 
@@ -131,7 +135,8 @@ def get_member_name_from_id(userid):
     for c in all:
         if c[0] == str(userid):
             result = c[1]
-    
+
+    db.commit()
     db.close()
     return result
 
@@ -147,6 +152,7 @@ def get_member_id_from_name(userid):
         if c[0] == str(userid):
             result = c[1]
     
+    db.commit()
     db.close()
     return result
 
