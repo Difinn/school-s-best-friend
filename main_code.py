@@ -3,100 +3,208 @@ import random
 import os
 import sqlite3
 import time
+import schedule
 from telebot import types
 
 #есть id этого user в базе данных или нету(если есть, то true)
 def check_reg_people(userid, chatid): #message.from_user.id and message.chat.id                  #есть id или нет
-    with open(r"base/inf_people.txt", 'r', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
-        while line != '':
-            code = (line.split(":"))[0]            # пока не конец файла
-            if code == str(userid):      # обрабатываем считанную строку
-                return True
-                #flag = True
-                #break
-            line = file.readline()     # читаем новую строку
-        return False
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == str(userid):
+            db.close()
+            return True
+    
+    db.close()
+    return False
 
 #есть id этой группы в базе данных или нету(если есть, то true)
 def check_reg_group(userid, chatid): #message.from_user.id and message.chat.id
-    with open(r"base/inf_groups.txt", 'r', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
-        while line != '':
-            code = (line.split(":"))[0]            # пока не конец файла
-            if code == str(chatid):      # обрабатываем считанную строку
-                return True
-                #flag = True
-                #break
-            line = file.readline()     # читаем новую строку
-        return False
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == str(userid):
+            db.close()
+            return True
+
+    db.close()
+    return False
 
 #получаем на каком этапе(state macine) находится user
 def get_sm(userid):
-    with open(r"base/inf_people.txt", 'r', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
-        while line != '':
-            code = (line.split(":"))[0]  # пока не конец файла
-            sm = (line.split(":"))[1]            
-            if code == str(userid):      # обрабатываем считанную строку
-                return sm
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == str(userid):
+            result = c[2]
+    
+    db.close()
+    return result
 
 #смена state macine
 def change_sm(new_sm ,userid):
-    linelist = []
-    with open(r"base/inf_people.txt", 'r+', encoding='utf-8') as file:
-        line = file.readline()        # считываем первую строку
-        print(line, " ")
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    userid = str(userid)
 
-        while line != '':
-            code = (line.split(":"))            # пока не конец файла
-            if code == str(userid):      # обрабатываем считанную строку
-                code[1] = new_sm
-                linelist.append(":".join(code))
-            else:
-                linelist.append(line)
-        
-        with open("main.py", "w") as file:
-            file.write(new_data)
+    c.execute("UPDATE articles SET sm = ? WHERE id = ?", (new_sm, userid))
+    db.commit()  # Важно!
+    db.close()
 
 #возвращает группы списком в которм есть пользователь
 def get_groups(userid):
-    pass
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    c.execute("SELECT groups FROM articles WHERE id = ?", (str(userid),))       # посмотри на запятую
+
+    all = c.fetchall()
+    result = (all[0][0]).split(",")
+
+    return result
 
 #возвращает название группы из id
 def get_groups_name_from_id(userid):
-    pass
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == str(userid):
+            result = c[1]
+    
+    db.close()
+    return result
 
 #возвращает id группы из имени
 def get_groups_id_from_name(userid):
-    pass
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[1] == str(userid):
+            result = c[0]
+    
+    db.close()
+    return result
 
 
 #возвращает участников группы по id в списке
 def get_members(chatid):
-    pass
+    db = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == str(chatid):
+            result = c[2].split(",")
+    
+    db.close()
+    return result
 
 #из id ищет имя участника
 def get_member_name_from_id(userid):
-    pass
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
+
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == str(userid):
+            result = c[1]
+    
+    db.close()
+    return result
 
 #из имени ищет id
 def get_member_id_from_name(userid):
-    pass
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+    c.execute("SELECT * FROM articles")
 
-bot = telebot.TeleBot(token = '7736265547:AAGnxKHv45qdeeWHlMqrWE_VzGPLCnfl0fw')
+    all = c.fetchall()
+    result = "0"
+    for c in all:
+        if c[0] == str(userid):
+            result = c[1]
+    
+    db.close()
+    return result
+
+def get_event_inf(idishnik):
+    db = sqlite3.connect("eventstable.db")
+    c = db.cursor()
+    idishnik = int(idishnik)
+    c.execute("SELECT rowid, * FROM articles WHERE rowid = ?", (idishnik))
+
+    all = c.fetchall()
+
+    db.commit()
+    db.close()
+    return all[0]
+
+def check_member_in_group(userid, chatid):
+    #db = sqlite3.connect("userstable.db")
+    #c = db.cursor()
+
+    dbg = sqlite3.connect("groupstable.db")
+    cg = db.cursor()
+    
+    cg = ("SELECT participants FROM articles WHERE id = ?", (str(chatid)))
+    all = cg.fetchall()
+
+    party = all[0].split(",")
+
+    if userid not in party:
+        dbg.commit()
+        dbg.close()
+        return True
+    
+    dbg.commit()
+    dbg.close()    
+    return False
+
+
+bot = telebot.TeleBot(token = '7575924161:AAHw3OG5W9R3sCUwc-Yrdh3-JfCU5srMrFk')
+
+#РАССЫЛКА МЕМОВ НАЧАЛО
+#def job():
+    #тут для subscribed_users
+    #for user_id in subscribed_users:
+        #bot.send_message(chat_id=user_id, text="Это автоматическое сообщение.")
+
+#schedule.every().day.at("10:00").do(job)
+
+#while True:
+    
+    #schedule.run_pending()
+    #time.sleep(1)
+#РАССЫЛКА МЕМОВ ФИНАЛ
 
 
 @bot.message_handler(commands = ['start'])
 def send_welcome(message):                                    #стартовая команда
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton(text="ДА! Помощь нужна."))
+    markup.add(types.KeyboardButton(text="Да! Помощь нужна."))
     markup.add(types.KeyboardButton(text="Нет!"))
     #print(message.chat.id, "Привет!", reply_markup = markup)
     # Получаем список групп, в которых находится бот
@@ -106,40 +214,88 @@ def send_welcome(message):                                    #стартова�
     #with open("chats\base\inf_chats.txt", "w") as file:
         #file.write(str(groups))
 
-    bot.send_message(message.chat.id, f"Привет!", reply_markup = markup)
+    bot.send_message(message.chat.id, f"Привет! Тебе нужна помощь?", reply_markup = markup)
 
 
 @bot.message_handler(commands = ["pup_reg_people"]) #регистрация людей
 def pupi_reg_people(message):
     print((message.text).split())
     if(check_reg_people(message.from_user.id, message.chat.id)): #если есть в базе
-        bot.send_message(message.from_user.id, 'Вы уже есть в базе')
-    elif len((message.text).split())==4: #если есть 4 слова(команда + ФИО)
-        print("Уяснил")
-        name = (message.text).split() #я устал пиздец
-        with open("base/inf_people.txt", 'a', encoding='utf-8') as file:
-            file.write(f"{message.from_user.id}:1:{name[1]} {name[2]} {name[3]}\n") #Запист ФИО
-        if not os.path.isdir(rf"base/inf_people/{message.from_user.id}"):
-            os.mkdir(rf'base/inf_people/{message.from_user.id}')
-        change_sm("0", message.from_user.id)
+        bot.send_message(message.from_user.id, 'Вы уже есть в базе в данных')
     else:
-        bot.send_message(message.from_user.id, 'Напиши свое Ф.И.О') #Стартер
+        bot.send_message(message.from_user.id, 'Напишите ваше ФИО.')
+        bot.register_next_step_handler(message, reg_name)
+
+def reg_name(message):
+    name = message.text
+
+    bot.send_message(message.from_user.id, 'Напишите вашу Роль')
+    bot.register_next_step_handler(message, reg_role, name)
+
+def reg_role(message, name):
+    role = message.text
+
+    bot.send_message(message.from_user.id, 'Когда вы родились?')
+    bot.register_next_step_handler(message, reg_birth, name, role)
+
+def reg_birth(message, name, role):
+    birth = message.text
+    id = message.from_user.id
+
+    m_time = message.text
+
+    
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
+
+    #c.execute("INSERT INTO articles VALUES (id, name, '0:0', '', birth, role)")
+    c.execute("""
+    INSERT INTO articles (id, name, sm, groups, birth_date, role)
+    VALUES (?, ?, ?, ?, ?, ?)
+""", (id, name, '', '', birth, role))
+    
+    c.execute("SELECT * FROM articles")
+
+    all = c.fetchall()
+    print(all)
+    db.commit()
+    db.close()
+
+    bot.send_message(message.from_user.id, f'Поздравляю, {name}! Вы зарегестрировались.')
+
+        
 
 
 @bot.message_handler(commands = ["pup_reg_group"])
 def pupi_reg_group(message): #регистрация по аналогии с людьми
     number = message.chat.id
     if(check_reg_group(message.from_user.id, message.chat.id)):
-        bot.send_message(message.chat.id, 'Уже в базе')
-    else:
-        with open(r"base/inf_groups.txt", 'a', encoding='utf-8') as file:
-            file.write(f"{message.chat.id}:{message.text[15:]}")
-        print(number)
+        bot.send_message(message.chat.id, 'Уже есть в базе данных')
+    elif (check_reg_group(message.from_user.id, message.chat.id)) == False and (str(message.from_user.id) != str(message.chat.id)):
+        bot.send_message(message.from_user.id, 'Какое название у группы?')
+        bot.register_next_step_handler(message, reg_nameg)
 
-        if not os.path.isdir(rf"base/inf_chats/{number}"):
-            os.mkdir(rf'base/inf_chats/{number}')
+def reg_nameg(message):
+    name = message.text
+    id = message.chat.id
+    
+    db = sqlite3.connect("userstable.db")
+    c = db.cursor()
 
-        bot.send_message(message.chat.id, f'Привет, {number}!')
+    #c.execute("INSERT INTO articles VALUES (id, name, '0:0', '', birth, role)")
+    c.execute("""
+    INSERT INTO articles (id, name, participants, otchim, events)
+    VALUES (?, ?, ?, ?, ?)
+""", (id, name, str(message.from_user.id), str(message.from_user.id), ''))
+    
+    c.execute("SELECT * FROM articles")
+
+    all = c.fetchall()
+    print(all)
+    db.commit()
+    db.close()
+
+    bot.send_message(message.from_user.id, f'Удачного пользования!')
 
 
 @bot.message_handler(content_types=['text'])
@@ -165,6 +321,30 @@ def get_text_messages(message):
                 else:
                     with open(rf"base/inf_chats/{message.chat.id}/", 'w+', encoding='utf-8') as file:
                         file.write(f"{time.ctime(seconds)} {message.from_user.id}:{message.text}")
+                
+                if check_member_in_group(message.from_user.id, message.chat.id):
+                    db = sqlite3.connect("userstable.db")
+                    c = db.cursor()
+
+                    dbg = sqlite3.connect("groupstable.db")
+                    cg = db.cursor()
+                    
+                    cg = ("SELECT participants FROM articles WHERE id = ?", (str(message.chat.id)))
+                    all = cg.fetchall()
+                    party = all[0] + "," + str(message.from_user.id)
+                    cg = ("UPDATE articles SET participants = ? WHERE id = ?", (party, str(message.chat.id)))
+
+                    c = ("SELECT groups FROM articles WHERE id = ?", (str(message.chat.id)))
+                    allc = c.fetchall()
+                    groups = all[0] + "," + str(message.chat.id)
+                    c = ("UPDATE articles SET groups = ? WHERE id = ?", (groups, str(message.chat.id)))
+
+                    db.commit()
+                    db.close()
+
+                    dbg.commit()
+                    dbg.close()
+
 
             
 
@@ -181,7 +361,7 @@ def get_text_messages(message):
             
             # варианты    
 
-            if message.text == "ДА! Помощь нужна." or (get_sm(message.from_user.id).split(":"))[0] == "0":
+            if message.text == "Да! Помощь нужна." or (get_sm(message.from_user.id).split(":"))[0] == "0":
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True) #создание новых кнопок
                 btn1 = types.KeyboardButton('УЧЕНИК')
                 btn2 = types.KeyboardButton('УЧИТЕЛЬ')
@@ -390,7 +570,7 @@ def set_absent1(message):
     if (get_sm(message.from_user.id).split(":"))[0] == "absent":
         userid = get_member_id_from_name(message.text)
         #тут меняй на противоположное значение (по базе ученик присутствует(1))
-        change_sm("pup_main", message.from_user.id)
+        change_sm(f"pup_main:{(get_sm(message.from_user.id).split(':'))[1]}", message.from_user.id)
 
 def set_absent2(message):
     if (get_sm(message.from_user.id).split(":"))[0] == "absent":
@@ -420,25 +600,92 @@ def sm_group2(message):
 
 def party(message):
     if message.text == "Создать":
-        bot.send_message(message.chat.id, "Принято")
+        bot.send_message(message.chat.id, "Принято. Введите имя события.")
         bot.register_next_step_handler(message, party_name)
     elif message.text == "Посмотреть":
-        pass
+        db = sqlite3.connect("groupstable.db")
+
+
+        c = db.cursor()
+
+        group = (get_sm(message.from_user.id).split(":"))[0]
+        c.execute("SELECT events FROM articles WHERE id = ?", (group))
+        events = c.fetchall()
+        
+        for hah in events:
+            markup.add(types.KeyboardButton((get_event_inf(hah))[1]))
+
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        bot.send_message(message.chat.id, 'Выберите событие', reply_markup=markup)
+
+        db.commit()
+        db.close()
+
+        bot.register_next_step_handler(message, party_inf, events)
+        
     elif message.text == "Руководство":
         pass
 
 def party_name(message):
-    #Тут сделай запись в табличку, наверное
-    bot.register_next_step_handler(message, party_description)
+    name = message.text
 
-def party_description(message):
-    #Тут сделай запись в табличку, наверное
     bot.send_message(message.chat.id, "Принято. Введите описание события.")
-    bot.register_next_step_handler(message, party_time)
-
-def party_time(message):
     #Тут сделай запись в табличку, наверное
-    bot.send_message(message.chat.id, "Мероприятие создано")
+    bot.register_next_step_handler(message, party_description, name)
+
+def party_description(message, name):
+    desc = message.text
+
+    #Тут сделай запись в табличку, наверное
+    bot.send_message(message.chat.id, "Принято. Введите время события.")
+    bot.register_next_step_handler(message, party_time, name, desc)
+
+def party_time(message, name, desc):
+    time = message.text
+
+    #Тут сделай запись в табличку, наверное
+    bot.send_message(message.chat.id, "Принято. Когда напомнить о событии?")
+    bot.register_next_step_handler(message, m_party_time, name, desc, time)
+def m_party_time(message, name, desc, time):
+    m_time = message.text
+
+    
+    db = sqlite3.connect("eventstable.db")
+    db_g = sqlite3.connect("groupstable.db")
+    c = db.cursor()
+    c_g = db_g.cursor()
+
+    c.execute("INSERT INTO articles (name, description, time, notifications) VALUES (?, ?, ?, ?)", (name, desc, time, m_time))
+    c.execute("SELECT rowid FROM articles")
+
+    a = len(c.fetchall())
+    idishnik = (get_sm(message.from_user.id).split(":"))[1]
+
+    c_g.execute("SELECT events, participants FROM articles WHERE id = ?", (idishnik))
+    new_event = (c_g.fetchall())[0][0] + ","+ str(a)
+
+    for c in (c_g.fetchall())[0][1]:
+        bot.send_message(c, f"Новое событие '{name}':\n{desc}")
+        #этот моментик проверить надо
+
+    c_g.execute("UPDATE articles SET event = ? WHERE id = ?", (new_event, idishnik))
+
+    db.commit()
+    db.close()
+    db_g.commit()
+    db_g.close()
+
+    
+
+
+    bot.send_message(message.chat.id, "Событие создано")
+
+def party_inf(message, events):
+    for c in events:
+        if message == c[2]:
+            bot.send_message(c, f"Новое событие '{c[2]}':\n{c[3]}")
+
+
 
 
 
