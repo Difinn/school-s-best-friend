@@ -65,10 +65,10 @@ def change_sm(new_sm ,userid):
 def get_groups(userid):
     db = sqlite3.connect("userstable.db")
     c = db.cursor()
-    c.execute("SELECT groups FROM articles WHERE id = ?", (str(userid)))
+    c.execute("SELECT groups FROM articles WHERE id = ?", (str(userid),))
 
     all = c.fetchall()
-    result = (all[0]).split(",")
+    result = (all[0][0]).split(",")
 
     return result
 
