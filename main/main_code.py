@@ -65,7 +65,7 @@ def change_sm(new_sm ,userid):
 def get_groups(userid):
     db = sqlite3.connect("userstable.db")
     c = db.cursor()
-    c.execute("SELECT groups FROM articles WHERE id = ?", (str(userid),))
+    c.execute("SELECT groups FROM articles WHERE id = ?", (str(userid),))       # посмотри на запятую
 
     all = c.fetchall()
     result = (all[0][0]).split(",")
