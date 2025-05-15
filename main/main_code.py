@@ -60,6 +60,8 @@ def change_sm(new_sm ,userid):
     userid = str(userid)
 
     c.execute("UPDATE articles SET sm = ? WHERE id = ?", (new_sm, userid))
+    db.commit()  # Важно!
+    db.close()
 
 #возвращает группы списком в которм есть пользователь
 def get_groups(userid):
@@ -233,7 +235,7 @@ def reg_name(message):
 def reg_role(message, name):
     role = message.text
 
-    bot.send_message(message.from_user.id, 'Напишите вашу Роль')
+    bot.send_message(message.from_user.id, 'Когда вы родились?')
     bot.register_next_step_handler(message, reg_birth, name, role)
 
 def reg_birth(message, name, role):
@@ -248,9 +250,9 @@ def reg_birth(message, name, role):
 
     #c.execute("INSERT INTO articles VALUES (id, name, '0:0', '', birth, role)")
     c.execute("""
-    INSERT INTO articles (id, name, groups, birth_date, role)
+    INSERT INTO articles (id, name, sm, groups, birth_date, role)
     VALUES (?, ?, ?, ?, ?, ?)
-""", (id, name, '', '', birth, role))
+""", (id, name, '0:0', '', birth, role))
     
     c.execute("SELECT * FROM articles")
 
@@ -413,7 +415,7 @@ def get_text_messages(message):
                     bot.send_document(message.chat.id, open(r'content/10/algebra/10_algebra.pdf', 'rb'))
                     change_sm("lib_9", message.from_user.id)
                 if message.text == "Английский":
-                    bot.szend_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
+                    bot.send_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
                     change_sm("lib_9", message.from_user.id)
                 if message.text == "История":
                     bot.send_document(message.chat.id, open(r'content/10/history/10_history.pdf', 'rb'))
