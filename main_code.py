@@ -252,7 +252,7 @@ def reg_birth(message, name, role):
     c.execute("""
     INSERT INTO articles (id, name, sm, groups, birth_date, role)
     VALUES (?, ?, ?, ?, ?, ?)
-""", (id, name, '', '', birth, role))
+""", (id, name, '0:0', '', birth, role))
     
     c.execute("SELECT * FROM articles")
 
@@ -272,7 +272,7 @@ def pupi_reg_group(message): #регистрация по аналогии с л
     if(check_reg_group(message.from_user.id, message.chat.id)):
         bot.send_message(message.chat.id, 'Уже есть в базе данных')
     elif (check_reg_group(message.from_user.id, message.chat.id)) == False and (str(message.from_user.id) != str(message.chat.id)):
-        bot.send_message(message.from_user.id, 'Какое название у группы?')
+        bot.send_message(message.chat.id, 'Какое название у группы?')
         bot.register_next_step_handler(message, reg_nameg)
 
 def reg_nameg(message):
@@ -286,7 +286,7 @@ def reg_nameg(message):
     c.execute("""
     INSERT INTO articles (id, name, participants, otchim, events)
     VALUES (?, ?, ?, ?, ?)
-""", (id, name, str(message.from_user.id), str(message.from_user.id), ''))
+    """, (id, name, str(message.from_user.id), str(message.from_user.id), ''))
     
     c.execute("SELECT * FROM articles")
 
@@ -295,7 +295,7 @@ def reg_nameg(message):
     db.commit()
     db.close()
 
-    bot.send_message(message.from_user.id, f'Удачного пользования!')
+    bot.send_message(message.chat.id, f'Удачного пользования!')
 
 
 @bot.message_handler(content_types=['text'])
@@ -415,7 +415,7 @@ def get_text_messages(message):
                     bot.send_document(message.chat.id, open(r'content/10/algebra/10_algebra.pdf', 'rb'))
                     change_sm("lib_9", message.from_user.id)
                 if message.text == "Английский":
-                    bot.szend_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
+                    bot.send_document(message.chat.id, open(r'content/10/english/10_spotlight.pdf', 'rb'))
                     change_sm("lib_9", message.from_user.id)
                 if message.text == "История":
                     bot.send_document(message.chat.id, open(r'content/10/history/10_history.pdf', 'rb'))
